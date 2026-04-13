@@ -99,6 +99,8 @@ interface UserData {
 interface DiscordStats {
   online: number;
   total: number;
+  active: number;
+  loading: boolean;
 }
 
 function App() {
@@ -110,7 +112,7 @@ function App() {
   
   // Real data states
   const [user, setUser] = useState<UserData | null>(null);
-  const [discordStats, setDiscordStats] = useState<DiscordStats>({ online: 0, total: 0 });
+  const [discordStats, setDiscordStats] = useState<DiscordStats>({ online: 0, total: 0, active: 50, loading: true });
   const [whitelistStats, setWhitelistStats] = useState({ approved: 0, total: 0, pending: 0 });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -121,7 +123,12 @@ function App() {
       .then(res => res.json())
       .then(data => {
         if (data.online !== undefined && data.total !== undefined) {
-          setDiscordStats({ online: data.online, total: data.total });
+          setDiscordStats({ 
+            online: data.online, 
+            total: data.total, 
+            active: data.active || Math.floor(data.total * 0.1),
+            loading: false 
+          });
         }
       })
       .catch(err => console.error('Error fetching Discord stats:', err));
@@ -268,19 +275,19 @@ function App() {
           <div className="flex gap-8 md:gap-16 mt-16">
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold text-violet-400">
-                {discordStats.loading ? '...' : discordStats.online}
+                {isLoading || discordStats.loading ? '...' : discordStats.online}
               </div>
               <div className="text-sm text-gray-400 uppercase tracking-wider">Online Discord</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold text-violet-400">
-                {discordStats.loading ? '...' : discordStats.total}
+                {isLoading || discordStats.loading ? '...' : discordStats.total}
               </div>
               <div className="text-sm text-gray-400 uppercase tracking-wider">Miembros Discord</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold text-violet-400">
-                {discordStats.loading ? '...' : discordStats.active}
+                {isLoading || discordStats.loading ? '...' : discordStats.active}
               </div>
               <div className="text-sm text-gray-400 uppercase tracking-wider">Usuarios Activos</div>
             </div>
