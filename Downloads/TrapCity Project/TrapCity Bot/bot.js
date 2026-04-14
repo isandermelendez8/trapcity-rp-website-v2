@@ -28,6 +28,8 @@ const TicketHandler = require('./handlers/tickets');
 const VerificationHandler = require('./handlers/verification');
 const WhitelistHandler = require('./handlers/whitelist');
 const LogsHandler = require('./handlers/logs');
+const WelcomeHandler = require('./handlers/welcome');
+const RecurringMessagesHandler = require('./handlers/recurringMessages');
 const { dbAsync } = require('./database');
 
 // ==================== CLIENT SETUP ====================
@@ -51,6 +53,8 @@ const ticketHandler = new TicketHandler(client);
 const verificationHandler = new VerificationHandler(client);
 const whitelistHandler = new WhitelistHandler(client);
 const logsHandler = new LogsHandler(client);
+const welcomeHandler = new WelcomeHandler(client);
+const recurringMessagesHandler = new RecurringMessagesHandler(client);
 
 // ==================== EXPRESS API ====================
 
@@ -234,6 +238,19 @@ client.once('ready', async () => {
             await logsHandler.updateVoiceStats(guild);
         }
     }, 5 * 60 * 1000);
+    
+    // Iniciar mensajes recurrentes
+    recurringMessagesHandler.start();
+});
+
+// ==================== WELCOME HANDLER ====================
+
+client.on('guildMemberAdd', async (member) => {
+    try {
+        await welcomeHandler.handle(member);
+    } catch (error) {
+        console.error('Error en guildMemberAdd:', error);
+    }
 });
 
 // ==================== INTERACTION HANDLER ====================
