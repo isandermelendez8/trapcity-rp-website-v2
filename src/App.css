@@ -1,0 +1,150 @@
+/* App-specific styles */
+
+/* Glass effect enhancements */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Progress bar styling */
+[data-slot="progress-indicator"] {
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa) !important;
+}
+
+/* Tab styling */
+[data-state="active"][role="tab"] {
+  color: white !important;
+  border-bottom-color: #8b5cf6 !important;
+}
+
+/* Badge styling */
+.badge-violet {
+  background: rgba(139, 92, 246, 0.2);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+/* Button hover glow */
+button[class*="violet"]:hover {
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+}
+
+/* Card hover effects */
+.glass:hover {
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+/* Question option hover */
+.question-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.question-option.selected {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: #8b5cf6;
+}
+
+/* Navigation number buttons */
+.nav-number {
+  transition: all 0.2s ease;
+}
+
+.nav-number:hover {
+  transform: scale(1.1);
+}
+
+/* Sidebar item active state */
+.sidebar-item-active {
+  background: rgba(255, 255, 255, 0.05);
+  border-right: 2px solid #8b5cf6;
+}
+
+/* Scrollbar styling for webkit browsers */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.5) rgba(255, 255, 255, 0.05);
+}
+
+/* Selection color */
+::selection {
+  background: rgba(139, 92, 246, 0.3);
+  color: white;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+}
+
+/* Input placeholder */
+::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Line clamp utility */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Animation for floating elements */
+@keyframes gentle-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.gentle-float {
+  animation: gentle-float 4s ease-in-out infinite;
+}
+
+/* Pulse glow animation */
+@keyframes pulse-glow-violet {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.6);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow-violet 2s ease-in-out infinite;
+}
+
+/* Gradient text */
+.text-gradient {
+  background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .ml-72 {
+    margin-left: 0;
+  }
+}
+
+/* Dark theme defaults */
+body {
+  background-color: #000;
+  color: #fff;
+}
