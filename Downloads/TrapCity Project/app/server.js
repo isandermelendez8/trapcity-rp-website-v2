@@ -21,6 +21,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy for Render deployment
+app.set('trust proxy', 1);
+
 // ==================== MIDDLEWARE ====================
 
 app.use(helmet({
@@ -50,8 +53,10 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'secret-key-change-in-production',
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     cookie: { 
         secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));
@@ -62,7 +67,10 @@ app.use(passport.session());
 // Rate limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit per IP
+    max: 100, // limit per IP
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req) => req.path === '/health' // Skip health checks
 });
 app.use(limiter);
 
@@ -108,6 +116,72 @@ passport.use(new DiscordStrategy({
         return done(err, null);
     }
 }));
+
+// ==================== VERIFICATION ====================
+
+// Verify endpoint - receives verification link from bot
+app.get('/verify', async (req, res) => {
+    try {
+        const { token, userId } = req.query;
+        
+        if (!token || !userId) {
+            return res.status(400).send('Missing token or userId');
+        }
+        
+        // Call bot API to verify
+        if (process.env.BOT_API_URL) {
+            try {
+                const response = await axios.post(`${process.env.BOT_API_URL}/api/verify`, {
+                    token,
+                    userId,
+                    ipData: req.ip
+                }, {
+                    headers: { 'Authorization': process.env.BOT_SECRET }
+                });
+                
+                if (response.data.success) {
+                    // Redirect to success page or dashboard
+                    return res.redirect('/verification-success');
+                } else {
+                    return res.status(400).send(response.data.error || 'Verification failed');
+                }
+            } catch (err) {
+                console.error('Error calling bot verify API:', err.message);
+                return res.status(500).send('Error verifying');
+            }
+        } else {
+            return res.status(500).send('Bot API not configured');
+        }
+    } catch (err) {
+        console.error('Error in verify route:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+// Success page
+app.get('/verification-success', (req, res) => {
+    res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Verificación Exitosa</title>
+            <style>
+                body { font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #1a1a1a; color: white; }
+                .container { text-align: center; }
+                h1 { color: #4ade80; }
+                a { color: #a78bfa; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>✅ Verificación Exitosa</h1>
+                <p>Tu cuenta ha sido verificada correctamente.</p>
+                <p><a href="/">Ir al inicio</a> | <a href="/dashboard">Ir al Dashboard</a></p>
+            </div>
+        </body>
+        </html>
+    `);
+});
 
 // ==================== HELPERS ====================
 
@@ -156,6 +230,7 @@ app.get('/auth/discord', passport.authenticate('discord'));
 app.get('/auth/discord/callback', 
     passport.authenticate('discord', { failureRedirect: '/login' }),
     (req, res) => {
+        console.log('Discord OAuth success, user:', req.user?.id, req.user?.username);
         res.redirect('/dashboard');
     }
 );
