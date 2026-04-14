@@ -43,17 +43,21 @@ class RecurringMessagesHandler {
                     new ButtonBuilder()
                         .setLabel('📸 Instagram')
                         .setStyle(ButtonStyle.Link)
-                        .setURL('https://www.instagram.com/shoot4greatness/')
+                        .setURL('https://www.instagram.com/shoot4greatness/'),
+                    new ButtonBuilder()
+                        .setLabel('💜 Unirse al Discord')
+                        .setStyle(ButtonStyle.Link)
+                        .setURL('https://discord.gg/trapcityrp')
                 );
 
             const embed = new EmbedBuilder()
                 .setTitle(this.header)
-                .setDescription(`# 🚀 ONLYSTARS RP — COMING SOON 🚀
+                .setDescription(`# 🚀 **TRAPCITY RP — COMING SOON** 🚀
 
-Nos complace anunciar que estamos trabajando en abrir un nuevo mundo de oportunidades con nuestro servidor de roleplay **OnlyStars**.
+Nos complace anunciar que estamos trabajando en abrir un **nuevo mundo de oportunidades** con nuestro servidor de roleplay **TRAPCITY RP**.
 
 Por ahora, no daremos muchos detalles ni spoilers… 👀
-Pero pueden estar seguros de que estamos enfocados en brindarles la mejor experiencia posible. Muy pronto estaremos revelando toda la información oficial, incluyendo el día de apertura.
+Pero pueden estar seguros de que estamos enfocados en brindarles **la mejor experiencia posible**. Muy pronto estaremos revelando **toda la información oficial**, incluyendo el **día de apertura**.
 
 ⭐ **Tenemos propuestas para ustedes:**
 Estaremos atentos a todas las personas que inviten amigos al Discord. Aquellos que traigan gente activa (ganga, corillo, como ustedes quieran llamarlo) serán **PREMIADOS**.
@@ -62,13 +66,13 @@ Manténganse pendientes… esto apenas comienza.
 
 **TRAP CITY RP**
 **SHOOT 4 GREATNESS… 🔥**`)
-                .setColor(0xFF1493) // Rosa fuerte
+                .setColor(0x8B5CF6) // Rosa fuerte
                 .setImage(`https://cdn.discordapp.com/stickers/${this.stickerId}.png`)
                 .setFooter({ text: 'TrapCity RP • 1 Mes Online', iconURL: channel.guild.iconURL() })
                 .setTimestamp();
 
             await channel.send({ embeds: [embed], components: [row] });
-            console.log('✅ Mensaje recurrente de OnlyStars enviado');
+            console.log('✅ Mensaje recurrente de TrapCity enviado');
         } catch (error) {
             console.error('❌ Error enviando mensaje recurrente:', error);
         }
