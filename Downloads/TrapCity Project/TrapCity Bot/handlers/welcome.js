@@ -3,7 +3,7 @@ const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('
 class WelcomeHandler {
     constructor(client) {
         this.client = client;
-        this.welcomeChannelId = '1492736197510828032';
+        this.welcomeChannelId = '1492956231306842132';
         this.stickerId = '1493688369132081152';
     }
 
@@ -30,7 +30,6 @@ class WelcomeHandler {
                 .addFields(
                     { name: '👤 Usuario', value: `${member.user.tag}`, inline: true },
                     { name: '📅 Se unió el', value: `${formattedDate}`, inline: true },
-                    { name: '🆔 ID', value: `${member.user.id}`, inline: true },
                     { name: '📊 Eres el miembro #', value: `${member.guild.memberCount}`, inline: true }
                 )
                 .setImage(`https://cdn.discordapp.com/stickers/${this.stickerId}.png`) // Sticker como imagen
