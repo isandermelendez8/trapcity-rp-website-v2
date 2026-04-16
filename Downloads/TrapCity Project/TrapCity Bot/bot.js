@@ -22,6 +22,7 @@ const {
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const config = require('./config');
 const Embeds = require('./embeds');
 const TicketHandler = require('./handlers/tickets');
@@ -130,9 +131,31 @@ app.get('/api/stats', async (req, res) => {
     }
 });
 
-// ==================== SLASH COMMANDS ====================
+// ==================== COMMAND COLLECTION ====================
 
-const commands = [
+const commands = [];
+const commandHandlers = new Map();
+
+// Cargar comandos dinámicamente desde la carpeta commands/
+const commandsPath = path.join(__dirname, 'commands');
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+
+for (const file of commandFiles) {
+    const filePath = path.join(commandsPath, file);
+    const command = require(filePath);
+    if ('data' in command && 'execute' in command) {
+        commands.push(command.data.toJSON());
+        commandHandlers.set(command.data.name, command);
+        console.log(`✅ Comando cargado: ${command.data.name}`);
+    } else {
+        console.log(`⚠️ El comando en ${filePath} falta propiedad 'data' o 'execute'`);
+    }
+}
+
+console.log(`📋 Total comandos cargados: ${commands.length}`);
+
+// Comandos hardcodeados (compatibilidad)
+const legacyCommands = [
     new SlashCommandBuilder()
         .setName('ticket')
         .setDescription('Sistema de tickets')
@@ -172,6 +195,9 @@ const commands = [
         .setName('test')
         .setDescription('Comando de prueba - muestra información del bot')
 ];
+
+// Agregar comandos legacy al array principal
+commands.push(...legacyCommands.map(cmd => cmd.toJSON()));
 
 // ==================== EVENT HANDLERS ====================
 
@@ -358,6 +384,23 @@ client.on('interactionCreate', async interaction => {
 
         const { commandName, options } = interaction;
 
+        // Comandos cargados dinámicamente desde archivos
+        if (commandHandlers.has(commandName)) {
+            try {
+                const command = commandHandlers.get(commandName);
+                await command.execute(interaction);
+                return;
+            } catch (error) {
+                console.error(`❌ Error ejecutando comando ${commandName}:`, error);
+                await interaction.reply({ 
+                    content: '❌ Hubo un error ejecutando este comando.',
+                    ephemeral: true 
+                });
+                return;
+            }
+        }
+
+        // Comandos legacy (hardcodeados) - compatibilidad
         // /ticket
         if (commandName === 'ticket') {
             const sub = options.getSubcommand();
