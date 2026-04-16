@@ -395,10 +395,19 @@ class TicketHandler {
         // Guardar transcript
         await this.saveTranscript(ticket, interaction.user, reason, duration, messageCount);
 
-        // Esperar 25 segundos para feedback
+        // Esperar 5 minutos para feedback antes de borrar canal
         setTimeout(async () => {
-            await channel.delete().catch(() => {});
-        }, 25000);
+            // Desactivar botones antes de borrar
+            try {
+                const disabledButtons = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder().setCustomId(`feedback_disabled_${ticketId}`).setLabel('⏰ Feedback cerrado').setStyle(ButtonStyle.Secondary).setDisabled(true)
+                );
+                await feedbackMsg.edit({ components: [disabledButtons] }).catch(() => {});
+                await channel.delete().catch(() => {});
+            } catch (e) {
+                await channel.delete().catch(() => {});
+            }
+        }, 5 * 60 * 1000); // 5 minutos
     }
 
     // Guardar transcript
@@ -449,6 +458,8 @@ class TicketHandler {
 
     // Manejar feedback
     async handleFeedback(interaction, rating, ticketId) {
+        await interaction.deferReply({ ephemeral: true });
+        
         await dbAsync.run(
             'UPDATE tickets SET feedback_rating = ? WHERE id = ?',
             [rating, ticketId]
@@ -467,7 +478,7 @@ class TicketHandler {
             });
         }
 
-        await interaction.reply({ content: `⭐ ¡Gracias por tu calificación de ${rating} estrellas!`, ephemeral: true });
+        await interaction.editReply({ content: `⭐ ¡Gracias por tu calificación de ${rating} estrellas!` });
     }
 
     // Guardar mensaje de ticket
