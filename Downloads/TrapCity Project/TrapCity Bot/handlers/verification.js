@@ -160,12 +160,26 @@ class VerificationHandler {
         
         // Generar token único
         const token = this.generateToken(user.id);
+        
+        // Guardar datos de verificación en el token
+        const riskData = {
+            riskScore,
+            riskLevel: riskScore > 50 ? 'ALTO' : riskScore > 25 ? 'MEDIO' : 'BAJO',
+            accountAgeStatus,
+            hasAvatar,
+            isSuspiciousName,
+            daysInServer: daysInGuild,
+            daysSinceActivity,
+            riskFactors
+        };
+        
         verificationTokens.set(user.id, {
             token,
             attempts: 0,
             createdAt: Date.now(),
             userId: user.id,
-            username: user.tag
+            username: user.tag,
+            riskData
         });
 
         // Enviar link de verificación web
@@ -240,7 +254,7 @@ class VerificationHandler {
         }
 
         // Éxito - guardar en DB con datos extendidos
-        const riskData = this.verificationData || {};
+        const riskData = data.riskData || {};
         await dbAsync.run(
             `INSERT INTO verified_users (discord_id, username, account_created, ip_address, country, region, city, risk_score, risk_level, account_age_days, has_avatar) 
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -271,7 +285,7 @@ class VerificationHandler {
         
         const logChannel = await this.client.channels.fetch(config.channels.securityLogs).catch(() => null);
         if (logChannel && user) {
-            const riskData = this.verificationData || {};
+            const riskData = data.riskData || {};
             const riskInfo = `
 📊 **Evaluación de Riesgo:** ${riskData.riskScore || 0}/100 (${riskData.riskLevel || 'BAJO'})
 
