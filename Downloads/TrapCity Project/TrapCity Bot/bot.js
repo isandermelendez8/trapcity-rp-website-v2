@@ -245,7 +245,7 @@ client.once('ready', async () => {
         const rest = new REST({ version: '10' }).setToken(config.DISCORD_TOKEN);
         await rest.put(
             Routes.applicationGuildCommands(client.user.id, config.GUILD_ID),
-            { body: commands.map(c => c.toJSON()) }
+            { body: commands }
         );
         console.log('✅ Comandos slash registrados');
     } catch (err) {
